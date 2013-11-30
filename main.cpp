@@ -18,7 +18,7 @@ Spring 2006
 #include <GL/gl.h>
 
 #include "glprocs.h"
-# include "main.h"
+#include "main.h"
 #include "read_tga.h"
 
 #define PI 3.14159265359
@@ -27,12 +27,10 @@ Spring 2006
 
 using namespace std;
 
-
 //object related information
 int verts, faces, norms;    // Number of vertices, faces and normals in the system
 point *vertList, *normList; // Vertex and Normal Lists
 faceStruct *faceList;	    // Face List
-
 
 //Illimunation and shading related declerations
 char *shaderFileRead(char *fn);
@@ -42,20 +40,15 @@ int shadingMode = 0;
 int lightSource = 0;
 int program=-1;
 
-
 //Parameters for Copper (From: "Computer Graphics Using OpenGL" BY F.S. Hill, Jr.) 
 GLfloat ambient_cont [] = {0.19125,0.0735,0.0225};
 GLfloat diffuse_cont [] = {0.7038,0.27048,0.0828};
 GLfloat specular_cont [] = {0.256777,0.137622,0.086014};
 GLfloat exponent = 12.8;
 
-
 //Projection, camera contral related declerations
 int WindowWidth,WindowHeight;
 bool LookAtObject = false;
-bool ShowAxes = true;
-
-
 
 float CameraRadius = 10;
 float CameraTheta = PI / 2;
@@ -65,9 +58,56 @@ int MouseY = 0;
 bool MouseLeft = false;
 bool MouseRight = false;
 
+//0 texture mapping - plane, planar mapping
+//1 texture mapping - sphere, planar mapping
+//2 texture mapping - teapot, planar mapping
+//3 texture mapping - sphere, spherical mapping
+//4 texture mapping - teapot, spherical mapping
+//5 environment mapping - sphere, sphere map
+//6 environment mapping - teapot, sphere map
+//7 bump mapping - plane
+//8 environment mapping - sphere, cube map [EXTRA CREDIT]
+//9 environment mapping - teapot, cube map [EXTRA CREDIT]
+//10 bump mapping - sphere [EXTRA CREDIT]
+int mapMode = 0;
 
+float binormal_loc;
+float tangent_loc;
 
+TGA* getTGAForMode() {
+	char* filename;
 
+	switch (mapMode) {
+	case 0:
+	case 1:
+	case 2:
+		filename = "./planartexturemap/abstract2.tga";
+		break;
+	case 3:
+	case 4:
+		filename = "./sphericaltexturemap/earth2.tga";
+		break;
+	case 5:
+	case 6:
+		filename = "./sphericalenvironmentmap/house2.tga";
+		break;
+	case 7:
+		filename = "./planarbumpmap/abstract2.tga";
+		break;
+	case 8:
+	case 9:
+		//TODO figure out how to do the other cube faces
+		filename = "./cubicenvironmentmap/cm_back2.tga";
+		break;
+	case 10:
+		filename = "./planartexturemap/abstract2.tga";
+		break;
+	default:
+		filename = "./sphericalbumpmap/earth2.tga";
+		break;
+	}
+	return new TGA(filename);
+}
 
 void DisplayFunc(void) 
 {
@@ -94,8 +134,9 @@ void DisplayFunc(void)
 	//	setParameters(program);
 
 	// Load image from tga file
-	TGA *TGAImage	= new TGA("./sphericalenvironmentmap/house2.tga");
+	//TGA *TGAImage	= new TGA("./sphericalenvironmentmap/house2.tga");
 	//TGA *TGAImage	= new TGA("./cubicenvironmentmap/cm_right.tga");
+	TGA *TGAImage = getTGAForMode();
 
 	// Use to dimensions of the image as the texture dimensions
 	uint width	= TGAImage->GetWidth();
@@ -143,12 +184,21 @@ void DisplayFunc(void)
 			n1 = vertList[faceList[i].v1];
 			n2 = vertList[faceList[i].v2];
 			n3 = vertList[faceList[i].v3];
+
+			//glVertexAttrib3fARB(tangent_loc, 0, 0, 0);
+			//glVertexAttrib3fARB(binormal_loc, 0, 0, 0);
 			glNormal3f(n1.x, n1.y, n1.z);
 			glTexCoord2f (v1.x, v1.y);
 			glVertex3f(v1.x, v1.y, v1.z);
+
+			//glVertexAttrib3fARB(tangent_loc, 0, 0, 0);
+			//glVertexAttrib3fARB(binormal_loc, 0, 0, 0);
 			glNormal3f(n2.x, n2.y, n2.z);
 			glTexCoord2f (v2.x, v2.y);
 			glVertex3f(v2.x, v2.y, v2.z);
+
+			//glVertexAttrib3fARB(tangent_loc, 0, 0, 0);
+			//glVertexAttrib3fARB(binormal_loc, 0, 0, 0);
 			glNormal3f(n3.x, n3.y, n3.z);
 			glTexCoord2f (v3.x, v3.y);
 			glVertex3f(v3.x, v3.y, v3.z);
@@ -215,7 +265,9 @@ void KeyboardFunc(unsigned char key, int x, int y)
 	{
 	case 'A':
 	case 'a':
-		ShowAxes = !ShowAxes;
+		//change if Extra Credit is implemented
+		mapMode = (mapMode + 1) % 8;
+		//mapMode = (mapMode + 1) % 11;
 		break;
 	case 'Q':
 	case 'q':
@@ -277,7 +329,7 @@ int main(int argc, char **argv)
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(100,100);
 	glutInitWindowSize(320,320);
-	glutCreateWindow("Assignment 6");
+	glutCreateWindow("Assignment 8");
 
 
 
@@ -446,8 +498,8 @@ void setParameters(GLuint program)
 
 	//sample variable used to demonstrate how attributes are used in vertex shaders.
 	//can be defined as gloabal and can change per vertex
-	float tangent = 0.0;
-	float tangent_loc;
+	//float tangent = 0.0;
+	//float tangent_loc;
 
 	update_Light_Position();
 
@@ -465,8 +517,11 @@ void setParameters(GLuint program)
 	glUniform1fARB(exponent_loc,exponent);
 
 	//Access attributes in vertex shader
-	tangent_loc = glGetAttribLocationARB(program,"tang");
-	glVertexAttrib1fARB(tangent_loc,tangent);
+	//tangent_loc = glGetAttribLocationARB(program,"tang");
+	//glVertexAttrib1fARB(tangent_loc,tangent);
+
+	tangent_loc = glGetAttribLocationARB(program,"rm_Tangent");
+	binormal_loc = glGetAttribLocationARB(program,"rm_Binormal");
 
 }
 
