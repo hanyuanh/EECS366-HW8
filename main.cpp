@@ -12,13 +12,13 @@ Spring 2006
 #include <math.h>
 
 #include <string.h>
-#include <GL/glut.h>
+#include "glut.h"
 #include <windows.h>
 #include <GL/glu.h>
 #include <GL/gl.h>
 
 #include "glprocs.h"
-# include "assign8_temp.h"
+# include "main.h"
 #include "read_tga.h"
 
 #define PI 3.14159265359

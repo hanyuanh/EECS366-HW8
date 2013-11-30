@@ -3,7 +3,7 @@
 
 
 #include <stdio.h>
-#include <GL/glut.h>
+#include "glut.h"
 
 
 // Vertex and Face data structure sued in the mesh reader
