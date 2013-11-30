@@ -1,10 +1,12 @@
    
 uniform vec3 AmbientContribution,DiffuseContribution,SpecularContribution;
 uniform float exponent;
+uniform int map_mode;
 
-attribute float tang;
+attribute vec3 rm_Binormal;
+attribute vec3 rm_Tangent;
 
-varying vec3 vNormal, vLight, vView, vHalfway;
+varying vec3 Texcoord, fvNormal, fvLight, fvView, fvHalfway;
 
 /*
 ===============================================================================
@@ -14,23 +16,35 @@ varying vec3 vNormal, vLight, vView, vHalfway;
 
 void main(void)
 {
+   gl_Position = ftransform();
+   Texcoord = gl_MultiTexCoord0.xy;
+   
    // Transform vertex position to view space
    
-   vec3 pos = vec3( gl_ModelViewMatrix * gl_Vertex );
+   vec4 fvObjectPosition = gl_ModelViewMatrix * gl_Vertex;
    
    // Compute normal, light and view vectors in view space
+   vec3 fvLightDirection    = normalize(gl_LightSource[0].position.xyz - fvObjectPosition.xyz);
+   vec3 fvViewDirection     = normalize(-fvObjectPosition.xyz);
    
-   vNormal   = normalize(gl_NormalMatrix * gl_Normal);
-   vLight    = normalize(vec3(gl_LightSource[0].position)- pos);
-   vView     = normalize(-pos);
+   fvNormal   = normalize(gl_NormalMatrix * gl_Normal);
+
    
    // Compute the halfway vector if the halfway approximation is used   
    
-   vHalfway  = normalize(vLight + vView );
-	
-   float data_from_opengl = tang;
-   gl_Position = ftransform();
+   fvHalfway  = normalize(fvLightDirection + fvViewDirection );
    
-
+   fvView = fvViewDirection;
+   fvLight = fvLightDirection;
+   
+   if (map_mode == 11) { //placeholder for now
+	   fvView.x  = dot( fvTangent, fvViewDirection );
+	   fvView.y  = dot( fvBinormal, fvViewDirection );
+	   fvView.z  = dot( fvNormal, fvViewDirection );
+	   
+	   fvLight.x  = dot( fvTangent, fvLightDirection.xyz );
+	   fvLight.y  = dot( fvBinormal, fvLightDirection.xyz );
+	   fvLight.z  = dot( fvNormal, fvLightDirection.xyz );
+   }
 
 }

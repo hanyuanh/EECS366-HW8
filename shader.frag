@@ -2,7 +2,9 @@
 
 uniform vec3 AmbientContribution,DiffuseContribution,SpecularContribution;
 uniform float exponent;
-varying vec3 vNormal, vLight, vView, vHalfway;
+uniform sampler2D baseMap;
+
+varying vec3 Texcoord, fvNormal, fvLight, fvView, fvHalfway;
 
 vec3 AmbientComponent(void)
 {
@@ -11,14 +13,14 @@ vec3 AmbientComponent(void)
 
 vec3 DiffuseComponent(void)
 {
-   return vec3(DiffuseContribution * max(0.0, dot(vNormal, vLight)));
+   return vec3(DiffuseContribution * max(0.0, dot(fvNormal, fvLight)));
 }
 
 vec3 SpecularComponent(void)
 {   
       // Approximation to the specular reflection using the halfway vector
       
-      return vec3(SpecularContribution * pow(max(0.0, dot(vNormal, vHalfway)), exponent));  
+      return vec3(SpecularContribution * pow(max(0.0, dot(fvNormal, fvHalfway)), exponent));  
 }
 
 /*
@@ -31,9 +33,9 @@ void main(void)
 {
       
    // Phong Illumination Model
+   vec4  fvBaseColor = texture2D( baseMap, Texcoord );
    
-   vec3 color = (AmbientComponent() + DiffuseComponent()) +
-                SpecularComponent();  
+   vec3 color = AmbientComponent() * fvBaseColor.xyz + DiffuseComponent() * fvBaseColor.xyz + SpecularComponent();  
    // Final color
    
    
