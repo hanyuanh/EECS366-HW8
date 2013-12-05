@@ -134,8 +134,6 @@ void DisplayFunc(void)
 	//	setParameters(program);
 
 	// Load image from tga file
-	//TGA *TGAImage	= new TGA("./sphericalenvironmentmap/house2.tga");
-	//TGA *TGAImage	= new TGA("./cubicenvironmentmap/cm_right.tga");
 	TGA *TGAImage = getTGAForMode();
 
 	// Use to dimensions of the image as the texture dimensions
@@ -184,6 +182,9 @@ void DisplayFunc(void)
 			n1 = vertList[faceList[i].v1];
 			n2 = vertList[faceList[i].v2];
 			n3 = vertList[faceList[i].v3];
+
+			// TODO switch on mapMode to determine vertex locations in the texture map
+			// specify them by changing the glTexCoord2f calls
 
 			//glVertexAttrib3fARB(tangent_loc, 0, 0, 0);
 			//glVertexAttrib3fARB(binormal_loc, 0, 0, 0);
@@ -494,7 +495,7 @@ void setParameters(GLuint program)
 {
 	int light_loc;
 	int ambient_loc,diffuse_loc,specular_loc;
-	int exponent_loc;
+	int exponent_loc, mapMode_loc, baseMap_loc;
 
 	//sample variable used to demonstrate how attributes are used in vertex shaders.
 	//can be defined as gloabal and can change per vertex
@@ -515,6 +516,12 @@ void setParameters(GLuint program)
 
 	exponent_loc = getUniformVariable(program, "exponent");
 	glUniform1fARB(exponent_loc,exponent);
+
+	mapMode_loc = getUniformVariable(program, "mapMode");
+	glUniform1iARB(mapMode_loc, mapMode);
+
+	baseMap_loc = getUniformVariable(program, "baseMap");
+    glUniform1iARB(baseMap_loc, 0);
 
 	//Access attributes in vertex shader
 	//tangent_loc = glGetAttribLocationARB(program,"tang");
