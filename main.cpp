@@ -185,6 +185,8 @@ void DisplayFunc(void)
 
 			// TODO switch on mapMode to determine vertex locations in the texture map
 			// specify them by changing the glTexCoord2f calls
+			// 0, 1, 2 should be planar
+			// 3, 4 should be spherical
 
 			//glVertexAttrib3fARB(tangent_loc, 0, 0, 0);
 			//glVertexAttrib3fARB(binormal_loc, 0, 0, 0);
@@ -269,6 +271,38 @@ void KeyboardFunc(unsigned char key, int x, int y)
 		//change if Extra Credit is implemented
 		mapMode = (mapMode + 1) % 8;
 		//mapMode = (mapMode + 1) % 11;
+
+		//0 texture mapping - plane, planar mapping
+		//1 texture mapping - sphere, planar mapping
+		//2 texture mapping - teapot, planar mapping
+		//3 texture mapping - sphere, spherical mapping
+		//4 texture mapping - teapot, spherical mapping
+		//5 environment mapping - sphere, sphere map
+		//6 environment mapping - teapot, sphere map
+		//7 bump mapping - plane
+		//8 environment mapping - sphere, cube map [EXTRA CREDIT]
+		//9 environment mapping - teapot, cube map [EXTRA CREDIT]
+		//10 bump mapping - sphere [EXTRA CREDIT]
+
+		switch(mapMode) {
+		case 0:
+		case 7:
+			meshReader("plane.obj", 1);
+			break;
+		case 1:
+		case 3:
+		case 5:
+		case 8:
+		case 10:
+			meshReader("sphere.obj", 1);
+			break;
+		case 2:
+		case 4:
+		case 6:
+		case 9:
+			meshReader("teapot.obj", 1);
+			break;
+		}
 		break;
 	case 'Q':
 	case 'q':
@@ -589,6 +623,9 @@ void meshReader (char *filename,int sign)
     printf("Cannot open %s\n!", filename);
     exit(0);
   }
+
+  verts = 0;
+  faces = 0;
 
   // Count the number of vertices and faces
   while(!feof(fp))
