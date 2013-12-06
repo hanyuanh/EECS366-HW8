@@ -1,7 +1,10 @@
-/* Wes Rupert - wesrupert@outlook.com (wkr3)  *
- * Josh Braun - jxb532@case.edu (jxb532)      *
- * Case Western Reserve University - EECS 366 *
- * 12/06/2013 - Assignment 8                  */
+/*
+
+EECS 366/466 COMPUTER GRAPHICS
+Template for Assignment 8-MAPPING
+Spring 2006
+
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,6 +41,8 @@ int illimunationMode = 0;
 int shadingMode = 0;
 int lightSource = 0;
 int program=-1;
+
+float maxDiff = 0;
 
 //Parameters for Copper (From: "Computer Graphics Using OpenGL" BY F.S. Hill, Jr.) 
 GLfloat ambient_cont [] = {0.19125,0.0735,0.0225};
@@ -145,6 +150,36 @@ void mapTexture(point &p, float &u, float &v, uint width, uint height, Vector3 r
 	}
 }
 
+void bump(TGA *tga, point &p, point &n) {
+	uint w = tga->GetWidth();
+	uint h = tga->GetHeigth();
+	uint u = (uint)((uint)(p.x - (w / 2)) % w);
+	uint v = (uint)((uint)(p.y - (h / 2)) % h);
+	uint pu = (u > 0) ? u - 1 : w;
+	uint pv = (v > 0) ? v - 1 : h;
+	byte *b = tga->GetPixels();
+	byte i = b[w * u + v];
+	byte piu = b[w * pu + v];
+	byte piv = b[w * u + pv];
+	float du = (float)(i - piu);
+	float dv = (float)(i - piv);
+
+	if (abs(du) > maxDiff) {
+		maxDiff = abs(du);
+	}
+	if (abs(dv) > maxDiff) {
+		maxDiff = abs(dv);
+	}
+	printf("%f\n", maxDiff);
+	// TODO: Perturb
+	n.x += du;
+	n.y += dv;
+	float mag = sqrtf(n.x * n.x + n.y * n.y + n.z * n.z);
+	n.x = n.x / mag;
+	n.y = n.y / mag;
+	n.z = n.z / mag;
+}
+
 
 void DisplayFunc(void) 
 {
@@ -213,6 +248,10 @@ void DisplayFunc(void)
 	camera.y = CameraRadius*cos(CameraPhi);
 	camera.z = CameraRadius*sin(CameraTheta)*sin(CameraPhi);
 
+	TGA *bumpMap = NULL;
+	if (mapMode == 7) {
+		bumpMap = new TGA("./planarbumpmap/abstract_gray2.tga");
+	}
 
 	for (int i = 0; i < faces; i++)
 	{
@@ -227,13 +266,14 @@ void DisplayFunc(void)
 			n3 = vertList[faceList[i].v3];
 			float u, v;
 
-			// TODO switch on mapMode to determine vertex locations in the texture map
-			// specify them by changing the glTexCoord2f calls
-			// 0, 1, 2 should be planar
-			// 3, 4 should be spherical
+			//if (bumpMap) {
+			//	bump(bumpMap, v1, n1);
+			//	bump(bumpMap, v2, n2);
+			//	bump(bumpMap, v2, n2);
+			//}
 
-			glVertexAttrib3fARB(tangent_loc, 1.0, 0.0, 0.0);
-			glVertexAttrib3fARB(binormal_loc, 0.0, 1.0, 0.0);
+			//glVertexAttrib3fARB(tangent_loc, 1.0, 0.0, 0.0);
+			//glVertexAttrib3fARB(binormal_loc, 0.0, 1.0, 0.0);
 			glNormal3f(n1.x, n1.y, n1.z);
 			Vector3 view = Vector3(v1.x - camera.x, v1.y - camera.y, v1.z - camera.z);
 			Vector3 normal = Vector3(n1.x, n1.y, n1.z);
@@ -243,8 +283,8 @@ void DisplayFunc(void)
 			glTexCoord2f (u, v);
 			glVertex3f(v1.x, v1.y, v1.z);
 
-			glVertexAttrib3fARB(tangent_loc, 1.0, 0.0, 0.0);
-			glVertexAttrib3fARB(binormal_loc, 0.0, 1.0, 0.0);
+			//glVertexAttrib3fARB(tangent_loc, 1.0, 0.0, 0.0);
+			//glVertexAttrib3fARB(binormal_loc, 0.0, 1.0, 0.0);
 			glNormal3f(n2.x, n2.y, n2.z);
 			view = Vector3(v2.x - camera.x, v2.y - camera.y, v2.z - camera.z);
 			normal = Vector3(n2.x, n2.y, n2.z);
@@ -254,8 +294,8 @@ void DisplayFunc(void)
 			glTexCoord2f (u, v);
 			glVertex3f(v2.x, v2.y, v2.z);
 
-			glVertexAttrib3fARB(tangent_loc, 1.0, 0.0, 0.0);
-			glVertexAttrib3fARB(binormal_loc, 0.0, 1.0, 0.0);
+			//glVertexAttrib3fARB(tangent_loc, 1.0, 0.0, 0.0);
+			//glVertexAttrib3fARB(binormal_loc, 0.0, 1.0, 0.0);
 			glNormal3f(n3.x, n3.y, n3.z);
 			view = Vector3(v3.x - camera.x, v3.y - camera.y, v3.z - camera.z);
 			normal = Vector3(n3.x, n3.y, n3.z);
@@ -267,6 +307,7 @@ void DisplayFunc(void)
 		glEnd();
 
 	}
+	delete bumpMap;
 
 	//glutSolidTeapot(1);
 	setParameters(program);
