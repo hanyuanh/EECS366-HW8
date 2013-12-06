@@ -40,7 +40,7 @@ void main(void)
    // Phong Illumination Model
    vec4  fvBaseColor = texture2D( baseMap, Texcoord );
    
-   vec3 color = color = AmbientComponent() * fvBaseColor.xyz + DiffuseComponent() * fvBaseColor.xyz + SpecularComponent();
+   vec3 color = AmbientComponent() * fvBaseColor.xyz + DiffuseComponent() * fvBaseColor.xyz + SpecularComponent();
    
    gl_FragColor = vec4(color, 1.0);
 }
