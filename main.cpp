@@ -175,8 +175,6 @@ void bump(TGA *tga, point &p, point &n) {
 	n.x = n.x / mag;
 	n.y = n.y / mag;
 	n.z = n.z / mag;
-
-	printf("Normal %f, %f, %f\n", n.x, n.y, n.z);
 }
 
 
