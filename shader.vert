@@ -1,7 +1,6 @@
    
 uniform vec3 AmbientContribution,DiffuseContribution,SpecularContribution;
 uniform float exponent;
-uniform int mapMode;
 
 attribute vec3 fvBinormal;
 attribute vec3 fvTangent;

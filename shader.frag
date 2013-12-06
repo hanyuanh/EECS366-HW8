@@ -3,7 +3,6 @@
 uniform vec3 AmbientContribution,DiffuseContribution,SpecularContribution;
 uniform float exponent;
 uniform sampler2D baseMap;
-uniform int mapMode;
 
 varying vec3 fvNormal, fvLight, fvView, fvHalfway;
 varying vec2 Texcoord;

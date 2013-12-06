@@ -45,9 +45,12 @@ int program=-1;
 float maxDiff = 0;
 
 //Parameters for Copper (From: "Computer Graphics Using OpenGL" BY F.S. Hill, Jr.) 
-GLfloat ambient_cont [] = {0.19125,0.0735,0.0225};
-GLfloat diffuse_cont [] = {0.7038,0.27048,0.0828};
-GLfloat specular_cont [] = {0.256777,0.137622,0.086014};
+//GLfloat ambient_cont [] = {0.19125,0.0735,0.0225};
+//GLfloat diffuse_cont [] = {0.7038,0.27048,0.0828};
+//GLfloat specular_cont [] = {0.256777,0.137622,0.086014};
+GLfloat ambient_cont [] = {0.2,0.2,0.2};
+GLfloat diffuse_cont [] = {0.8,0.8,0.8};
+GLfloat specular_cont [] = {0.5,0.5,0.5};
 GLfloat exponent = 12.8;
 
 //Projection, camera contral related declerations
@@ -125,6 +128,7 @@ void mapTexture(point &p, float &u, float &v, uint width, uint height, Vector3 r
 	case 0:
 	case 1:
 	case 2:
+	case 7:
 		// planar
 		u = p.x;
 		v = p.y;
@@ -164,20 +168,15 @@ void bump(TGA *tga, point &p, point &n) {
 	float du = (float)(i - piu);
 	float dv = (float)(i - piv);
 
-	if (abs(du) > maxDiff) {
-		maxDiff = abs(du);
-	}
-	if (abs(dv) > maxDiff) {
-		maxDiff = abs(dv);
-	}
-	printf("%f\n", maxDiff);
-	// TODO: Perturb
-	n.x += du;
-	n.y += dv;
+	// Perturb the normal
+	n.x += du / 4.0;
+	n.y += dv/ 4.0;
 	float mag = sqrtf(n.x * n.x + n.y * n.y + n.z * n.z);
 	n.x = n.x / mag;
 	n.y = n.y / mag;
 	n.z = n.z / mag;
+
+	printf("Normal %f, %f, %f\n", n.x, n.y, n.z);
 }
 
 
@@ -266,11 +265,18 @@ void DisplayFunc(void)
 			n3 = vertList[faceList[i].v3];
 			float u, v;
 
-			//if (bumpMap) {
-			//	bump(bumpMap, v1, n1);
-			//	bump(bumpMap, v2, n2);
-			//	bump(bumpMap, v2, n2);
-			//}
+			// manually doing the normals for a plane
+			if (mapMode == 0 || mapMode == 7) {
+				n1.x = n2.x = n3.x = 0.0;
+				n1.y = n2.y = n3.y = 0.0;
+				n1.z = n2.z = n3.z = 1.0;
+			}
+
+			if (mapMode == 7) {
+				bump(bumpMap, v1, n1);
+				bump(bumpMap, v2, n2);
+				bump(bumpMap, v2, n2);
+			}
 
 			//glVertexAttrib3fARB(tangent_loc, 1.0, 0.0, 0.0);
 			//glVertexAttrib3fARB(binormal_loc, 0.0, 1.0, 0.0);
@@ -475,7 +481,7 @@ int main(int argc, char **argv)
 	
 	setShaders();
 	
-	meshReader("teapot.obj", 1);
+	meshReader("plane.obj", 1);
 
 	glutMainLoop();
 
@@ -650,8 +656,8 @@ void setParameters(GLuint program)
 	exponent_loc = getUniformVariable(program, "exponent");
 	glUniform1fARB(exponent_loc,exponent);
 
-	mapMode_loc = getUniformVariable(program, "mapMode");
-	glUniform1iARB(mapMode_loc, mapMode);
+	//mapMode_loc = getUniformVariable(program, "mapMode");
+	//glUniform1iARB(mapMode_loc, mapMode);
 
 	baseMap_loc = getUniformVariable(program, "baseMap");
     glUniform1iARB(baseMap_loc, 0);
