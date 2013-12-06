@@ -20,8 +20,10 @@ Spring 2006
 #include "glprocs.h"
 #include "main.h"
 #include "read_tga.h"
+#include "Vector3.h"
 
 #define PI 3.14159265359
+#define TWOPI 6.28318530718
 
 #define PrintOpenGLError()::PrintOGLError(__FILE__, __LINE__)
 
@@ -81,33 +83,71 @@ TGA* getTGAForMode() {
 	case 0:
 	case 1:
 	case 2:
+		glutSetWindowTitle("Assignment 8 - Planar Texture Map");
 		filename = "./planartexturemap/abstract2.tga";
 		break;
 	case 3:
 	case 4:
+		glutSetWindowTitle("Assignment 8 - Spherical Texture Map");
 		filename = "./sphericaltexturemap/earth2.tga";
 		break;
 	case 5:
 	case 6:
+		glutSetWindowTitle("Assignment 8 - Spherical Environment Map");
 		filename = "./sphericalenvironmentmap/house2.tga";
 		break;
 	case 7:
+		glutSetWindowTitle("Assignment 8 - Planar Bump Map");
 		filename = "./planarbumpmap/abstract2.tga";
 		break;
 	case 8:
 	case 9:
 		//TODO figure out how to do the other cube faces
+		glutSetWindowTitle("Assignment 8 - Cubic Environment Map");
 		filename = "./cubicenvironmentmap/cm_back2.tga";
 		break;
 	case 10:
-		filename = "./planartexturemap/abstract2.tga";
+		glutSetWindowTitle("Assignment 8 - Sphere Bump Map");
+		filename = "./sphericalbumpmap/earth2.tga";
 		break;
 	default:
-		filename = "./sphericalbumpmap/earth2.tga";
+		filename = "./planartexturemap/abstract2.tga";
 		break;
 	}
 	return new TGA(filename);
 }
+
+void mapTexture(point &p, float &u, float &v, uint width, uint height, Vector3 reflection) {
+	float radius = sqrtf(p.x * p.x + p.y * p.y + p.z * p.z);
+	switch (mapMode) {
+	case 0:
+	case 1:
+	case 2:
+		// planar
+		u = p.x;
+		v = p.y;
+		break;
+	case 3:
+	case 4:
+		// spherical texture
+		//u = acosf(p.z / sqrtf(p.x * p.x + p.y * p.y + p.z * p.z));
+		//v = atanf(p.y / p.x);
+		v = acos(p.z/radius) / PI;
+		if (p.y >= 0)
+			u = acos(p.x/(radius * sin(PI * v))) / TWOPI;
+		else
+			u = (PI + acos(p.x/(radius * sin(PI * v)))) / TWOPI;
+		break;
+	case 5:
+	case 6:
+		// spherical environment
+		float m = 2.0 * sqrtf(reflection[0] * reflection[0] + reflection[1] * reflection[1] + (reflection[2] + 1.0) * (reflection[2] + 1.0));
+		u = (reflection[0] / m + 0.5);
+		v = (reflection[1] / m + 0.5);
+		break;
+	}
+}
+
 
 void DisplayFunc(void) 
 {
@@ -131,7 +171,7 @@ void DisplayFunc(void)
 	glEnable(GL_DEPTH_TEST);	
 	glEnable(GL_TEXTURE_2D);
 
-	//	setParameters(program);
+	setParameters(program);
 
 	// Load image from tga file
 	TGA *TGAImage = getTGAForMode();
@@ -171,6 +211,12 @@ void DisplayFunc(void)
 
     delete TGAImage;
 
+	point camera = point();
+	camera.x = CameraRadius*cos(CameraTheta)*sin(CameraPhi);
+	camera.y = CameraRadius*cos(CameraPhi);
+	camera.z = CameraRadius*sin(CameraTheta)*sin(CameraPhi);
+
+
 	for (int i = 0; i < faces; i++)
 	{
 		
@@ -182,35 +228,51 @@ void DisplayFunc(void)
 			n1 = vertList[faceList[i].v1];
 			n2 = vertList[faceList[i].v2];
 			n3 = vertList[faceList[i].v3];
+			float u, v;
 
 			// TODO switch on mapMode to determine vertex locations in the texture map
 			// specify them by changing the glTexCoord2f calls
 			// 0, 1, 2 should be planar
 			// 3, 4 should be spherical
 
-			//glVertexAttrib3fARB(tangent_loc, 0, 0, 0);
-			//glVertexAttrib3fARB(binormal_loc, 0, 0, 0);
+			glVertexAttrib3fARB(tangent_loc, 1.0, 0.0, 0.0);
+			glVertexAttrib3fARB(binormal_loc, 0.0, 1.0, 0.0);
 			glNormal3f(n1.x, n1.y, n1.z);
-			glTexCoord2f (v1.x, v1.y);
+			Vector3 view = Vector3(v1.x - camera.x, v1.y - camera.y, v1.z - camera.z);
+			Vector3 normal = Vector3(n1.x, n1.y, n1.z);
+			float d = normal.dot(view);
+			Vector3 reflection = view - (normal * 2.0 * d);
+			mapTexture(v1, u, v, width, height, reflection);
+			glTexCoord2f (u, v);
 			glVertex3f(v1.x, v1.y, v1.z);
 
-			//glVertexAttrib3fARB(tangent_loc, 0, 0, 0);
-			//glVertexAttrib3fARB(binormal_loc, 0, 0, 0);
+			glVertexAttrib3fARB(tangent_loc, 1.0, 0.0, 0.0);
+			glVertexAttrib3fARB(binormal_loc, 0.0, 1.0, 0.0);
 			glNormal3f(n2.x, n2.y, n2.z);
-			glTexCoord2f (v2.x, v2.y);
+			view = Vector3(v2.x - camera.x, v2.y - camera.y, v2.z - camera.z);
+			normal = Vector3(n2.x, n2.y, n2.z);
+			d = normal.dot(view);
+			reflection = view - (normal * 2.0 * d);
+			mapTexture(v2, u, v, width, height, reflection);
+			glTexCoord2f (u, v);
 			glVertex3f(v2.x, v2.y, v2.z);
 
-			//glVertexAttrib3fARB(tangent_loc, 0, 0, 0);
-			//glVertexAttrib3fARB(binormal_loc, 0, 0, 0);
+			glVertexAttrib3fARB(tangent_loc, 1.0, 0.0, 0.0);
+			glVertexAttrib3fARB(binormal_loc, 0.0, 1.0, 0.0);
 			glNormal3f(n3.x, n3.y, n3.z);
-			glTexCoord2f (v3.x, v3.y);
+			view = Vector3(v3.x - camera.x, v3.y - camera.y, v3.z - camera.z);
+			normal = Vector3(n3.x, n3.y, n3.z);
+			d = normal.dot(view);
+			reflection = view - (normal * 2.0 * d);
+			mapTexture(v3, u, v, width, height, reflection);
+			glTexCoord2f (u, v);
 			glVertex3f(v3.x, v3.y, v3.z);
 		glEnd();
 
-	}	
+	}
 
 	//glutSolidTeapot(1);
-//	setParameters(program);
+	setParameters(program);
 	glutSwapBuffers();
 }
 
@@ -366,8 +428,6 @@ int main(int argc, char **argv)
 	glutInitWindowSize(320,320);
 	glutCreateWindow("Assignment 8");
 
-
-
 	glutDisplayFunc(DisplayFunc);
 	glutReshapeFunc(ReshapeFunc);
 	glutMouseFunc(MouseFunc);
@@ -375,7 +435,7 @@ int main(int argc, char **argv)
     glutKeyboardFunc(KeyboardFunc);
 
 	
-	//setShaders();
+	setShaders();
 	
 	meshReader("teapot.obj", 1);
 
@@ -435,8 +495,8 @@ void setShaders()
 	
 
 	//read the shader files and store the strings in corresponding char. arrays.
-	vs = shaderFileRead("sampleshader.vert");
-	fs = shaderFileRead("sampleshader.frag");
+	vs = shaderFileRead("shader.vert");
+	fs = shaderFileRead("shader.frag");
 
 	const char * vv = vs;
 	const char * ff = fs;
@@ -493,7 +553,7 @@ void setShaders()
 	glUseProgramObjectARB(p);
 
 	    
-//	setParameters(p);
+	setParameters(p);
 
 }
 
@@ -506,9 +566,10 @@ int getUniformVariable(GLuint program,char *name)
 	
 	if (location == -1)
 	{
+		printf("%s\n", name);
  		error_exit(1007, "No such uniform variable");
 	}
-	PrintOpenGLError();
+	//PrintOpenGLError();
 	return location;
 }
 

@@ -34,19 +34,25 @@ vec3 SpecularComponent(void)
 void main(void)
 {
       
+   fvNormal = normalize(fvNormal);
+   fvView = normalize(fvView);
+   fvLight = normalize(fvLight);
    // Phong Illumination Model
    vec4  fvBaseColor = texture2D( baseMap, Texcoord );
    
    vec3 color;
    if (mapMode <= 4) { //texture map
       color = AmbientComponent() * fvBaseColor.xyz + DiffuseComponent() * fvBaseColor.xyz + SpecularComponent();  
-   } else if (mapMode <= 6) { //environment map
+   } else if (mapMode == 6) { //environment map
       //TODO
-   } else if (mapMode <= 7) { //bump mapping
-      //TODO
+      // use reflection vector?
+      color = AmbientComponent() * fvBaseColor.xyz + DiffuseComponent() * fvBaseColor.xyz + SpecularComponent();
+   } else if (mapMode == 7) { //bump mapping
+      fvNormal = normalize((texture2D(baseMap, Texcoord).xyz * 2.0) - 1.0);
+      color = AmbientComponent() * fvBaseColor.xyz + DiffuseComponent() * fvBaseColor.xyz + SpecularComponent(); 
    } else if (mapMode <= 9) { //cube environment map
       //TODO
-   } else if (mapMode <= 10) { //sphere bump map
+   } else if (mapMode == 10) { //sphere bump map
       //TODO
    }
    

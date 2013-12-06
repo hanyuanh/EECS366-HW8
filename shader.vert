@@ -38,7 +38,7 @@ void main(void)
    fvView = fvViewDirection;
    fvLight = fvLightDirection;
    
-   if (mapMode == 11) { //placeholder for now
+   if (mapMode == 7 || mapMode == 11) { //placeholder for now
       fvView.x  = dot( fvTangent, fvViewDirection );
       fvView.y  = dot( fvBinormal, fvViewDirection );
       fvView.z  = dot( fvNormal, fvViewDirection );
