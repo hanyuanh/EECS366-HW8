@@ -1,7 +1,10 @@
-/* Wes Rupert - wesrupert@outlook.com (wkr3)  *
- * Josh Braun - jxb532@case.edu (jxb532)      *
- * Case Western Reserve University - EECS 366 *
- * 12/06/2013 - Assignment 8                  */
+/*
+
+EECS 366/466 COMPUTER GRAPHICS
+Template for Assignment 8-MAPPING
+Spring 2006
+
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -159,6 +162,7 @@ void bump(TGA *tga, point &p, point &n) {
 	byte du = (i - piu) * w;
 	byte dv = (i - piv) * h;
 
+	// TODO: Perturb
 
 }
 
@@ -232,7 +236,7 @@ void DisplayFunc(void)
 
 	TGA *bumpMap = NULL;
 	if (mapMode == 7) {
-		bumpMap = new TGA("./planarbumpmanp/abstract_gray2.tga");
+		bumpMap = new TGA("./planarbumpmap/abstract_gray2.tga");
 	}
 
 	for (int i = 0; i < faces; i++)
