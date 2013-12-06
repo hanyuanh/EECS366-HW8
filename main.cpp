@@ -1,10 +1,7 @@
-/*
-
-EECS 366/466 COMPUTER GRAPHICS
-Template for Assignment 8-MAPPING
-Spring 2006
-
-*/
+/* Wes Rupert - wesrupert@outlook.com (wkr3)  *
+ * Josh Braun - jxb532@case.edu (jxb532)      *
+ * Case Western Reserve University - EECS 366 *
+ * 12/06/2013 - Assignment 8                  */
 
 #include <stdio.h>
 #include <stdlib.h>

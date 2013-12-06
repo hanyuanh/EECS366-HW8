@@ -1,3 +1,8 @@
+/* Wes Rupert - wesrupert@outlook.com (wkr3)  *
+ * Josh Braun - jxb532@case.edu (jxb532)      *
+ * Case Western Reserve University - EECS 366 *
+ * 12/06/2013 - Assignment 8                  */
+
 #ifndef __assign8_temp_h__
 #define __assign8_temp_h__
 
