@@ -148,6 +148,23 @@ void mapTexture(point &p, float &u, float &v, uint width, uint height, Vector3 r
 	}
 }
 
+void bump(TGA *tga, point &p, point &n) {
+	uint w = tga->GetWidth();
+	uint h = tga->GetHeigth();
+	uint u = (uint)((uint)(p.x - (w / 2)) % w);
+	uint v = (uint)((uint)(p.y - (h / 2)) % h);
+	uint pu = (u > 0) ? u - 1 : w;
+	uint pv = (v > 0) ? v - 1 : h;
+	byte *b = tga->GetPixels();
+	byte i = b[w * u + v];
+	byte piu = b[w * pu + v];
+	byte piv = b[w * u + pv];
+	byte du = (i - piu) * w;
+	byte dv = (i - piv) * h;
+
+
+}
+
 
 void DisplayFunc(void) 
 {
@@ -216,6 +233,10 @@ void DisplayFunc(void)
 	camera.y = CameraRadius*cos(CameraPhi);
 	camera.z = CameraRadius*sin(CameraTheta)*sin(CameraPhi);
 
+	TGA *bumpMap = NULL;
+	if (mapMode == 7) {
+		bumpMap = new TGA("./planarbumpmanp/abstract_gray2.tga");
+	}
 
 	for (int i = 0; i < faces; i++)
 	{
@@ -230,10 +251,11 @@ void DisplayFunc(void)
 			n3 = vertList[faceList[i].v3];
 			float u, v;
 
-			// TODO switch on mapMode to determine vertex locations in the texture map
-			// specify them by changing the glTexCoord2f calls
-			// 0, 1, 2 should be planar
-			// 3, 4 should be spherical
+			if (bumpMap) {
+				bump(bumpMap, v1, n1);
+				bump(bumpMap, v2, n2);
+				bump(bumpMap, v2, n2);
+			}
 
 			glVertexAttrib3fARB(tangent_loc, 1.0, 0.0, 0.0);
 			glVertexAttrib3fARB(binormal_loc, 0.0, 1.0, 0.0);
