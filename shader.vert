@@ -3,10 +3,11 @@ uniform vec3 AmbientContribution,DiffuseContribution,SpecularContribution;
 uniform float exponent;
 uniform int mapMode;
 
-attribute vec3 rm_Binormal;
-attribute vec3 rm_Tangent;
+attribute vec3 fvBinormal;
+attribute vec3 fvTangent;
 
-varying vec3 Texcoord, fvNormal, fvLight, fvView, fvHalfway;
+varying vec3 fvNormal, fvLight, fvView, fvHalfway;
+varying vec2 Texcoord;
 
 /*
 ===============================================================================
@@ -38,13 +39,13 @@ void main(void)
    fvLight = fvLightDirection;
    
    if (mapMode == 11) { //placeholder for now
-	   fvView.x  = dot( fvTangent, fvViewDirection );
-	   fvView.y  = dot( fvBinormal, fvViewDirection );
-	   fvView.z  = dot( fvNormal, fvViewDirection );
-	   
-	   fvLight.x  = dot( fvTangent, fvLightDirection.xyz );
-	   fvLight.y  = dot( fvBinormal, fvLightDirection.xyz );
-	   fvLight.z  = dot( fvNormal, fvLightDirection.xyz );
+      fvView.x  = dot( fvTangent, fvViewDirection );
+      fvView.y  = dot( fvBinormal, fvViewDirection );
+      fvView.z  = dot( fvNormal, fvViewDirection );
+      
+      fvLight.x  = dot( fvTangent, fvLightDirection.xyz );
+      fvLight.y  = dot( fvBinormal, fvLightDirection.xyz );
+      fvLight.z  = dot( fvNormal, fvLightDirection.xyz );
    }
 
 }

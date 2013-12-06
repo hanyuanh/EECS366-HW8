@@ -5,7 +5,8 @@ uniform float exponent;
 uniform sampler2D baseMap;
 uniform int mapMode;
 
-varying vec3 Texcoord, fvNormal, fvLight, fvView, fvHalfway;
+varying vec3 fvNormal, fvLight, fvView, fvHalfway;
+varying vec2 Texcoord;
 
 vec3 AmbientComponent(void)
 {
@@ -33,21 +34,21 @@ vec3 SpecularComponent(void)
 void main(void)
 {
       
-	// Phong Illumination Model
-	vec4  fvBaseColor = texture2D( baseMap, Texcoord );
+   // Phong Illumination Model
+   vec4  fvBaseColor = texture2D( baseMap, Texcoord );
    
-	vec3 color;
-	if (mapMode <= 4) { //texture map
-		color = AmbientComponent() * fvBaseColor.xyz + DiffuseComponent() * fvBaseColor.xyz + SpecularComponent();  
-	} else if (mapMode <= 6) { //environment map
-		//TODO
-	} else if (mapMode <= 7) { //bump mapping
-		//TODO
-	} else if (mapMode <= 9) { //cube environment map
-		//TODO
-	} else if (mapMode <= 10) { //sphere bump map
-		//TODO
-	}
+   vec3 color;
+   if (mapMode <= 4) { //texture map
+      color = AmbientComponent() * fvBaseColor.xyz + DiffuseComponent() * fvBaseColor.xyz + SpecularComponent();  
+   } else if (mapMode <= 6) { //environment map
+      //TODO
+   } else if (mapMode <= 7) { //bump mapping
+      //TODO
+   } else if (mapMode <= 9) { //cube environment map
+      //TODO
+   } else if (mapMode <= 10) { //sphere bump map
+      //TODO
+   }
    
-	gl_FragColor = vec4(color, 1.0);
+   gl_FragColor = vec4(color, 1.0);
 }
