@@ -266,11 +266,19 @@ void DisplayFunc(void)
 			n3 = vertList[faceList[i].v3];
 			float u, v;
 
+<<<<<<< HEAD
 			//if (bumpMap) {
 			//	bump(bumpMap, v1, n1);
 			//	bump(bumpMap, v2, n2);
 			//	bump(bumpMap, v2, n2);
 			//}
+=======
+			if (bumpMap) {
+				bump(bumpMap, v1, n1);
+				bump(bumpMap, v2, n2);
+				bump(bumpMap, v2, n2);
+			}
+>>>>>>> 3913aefbe37948aaec06d2b5f58a1e04178ffd4a
 
 			//glVertexAttrib3fARB(tangent_loc, 1.0, 0.0, 0.0);
 			//glVertexAttrib3fARB(binormal_loc, 0.0, 1.0, 0.0);
